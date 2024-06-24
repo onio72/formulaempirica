@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Problemas de Fórmulas Empíricas</title>
+    <style>
+        .correct { color: green; }
+        .incorrect { color: red; }
+        .hidden { display: none; }
+        .result { margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Problemas de Fórmulas Empíricas</h1>
+    <p>Resuelve el problema siguiente. Usa dos cifras decimales y redondea hasta las centésimas.</p>
+    <div id="problem"></div>
+    <div id="solution"></div>
+    <button onclick="checkAnswers()">Comprobar</button>
+    <button onclick="resetAnswers()">Corregir</button>
+    <button onclick="generateProblem()">Otro caso</button>
+    <div id="score" class="result"></div>
+    
+    <script>
+        const problems = [
+            {
+                statement: "Deducir la fórmula empírica de una sustancia con la siguiente composición centesimal: 44,50% Ca, 19,97% Al y 35,53% O.",
+                elements: [{ symbol: "Ca", percentage: 44.50, atomicMass: 40.08 }, { symbol: "Al", percentage: 19.97, atomicMass: 26.98 }, { symbol: "O", percentage: 35.53, atomicMass: 16.00 }]
+            },
+            {
+                statement: "Deducir la fórmula empírica de una sustancia con la siguiente composición centesimal: 22,00% Ca, 15,42% Si y 62,58% F.",
+                elements: [{ symbol: "Ca", percentage: 22.00, atomicMass: 40.08 }, { symbol: "Si", percentage: 15.42, atomicMass: 28.09 }, { symbol: "F", percentage: 62.58, atomicMass: 19.00 }]
+            },
+            {
+                statement: "Deducir la fórmula empírica de una sustancia con la siguiente composición centesimal: 54,53% C, 9,15% H y 36,32% O.",
+                elements: [{ symbol: "C", percentage: 54.53, atomicMass: 12.01 }, { symbol: "H", percentage: 9.15, atomicMass: 1.008 }, { symbol: "O", percentage: 36.32, atomicMass: 16.00 }]
+            },
+            {
+                statement: "Deducir la fórmula empírica de un compuesto orgánico con la siguiente composición centesimal: 60,96% de C, 15,35% de H y 23,69% de N.",
+                elements: [{ symbol: "C", percentage: 60.96, atomicMass: 12.01 }, { symbol: "H", percentage: 15.35, atomicMass: 1.008 }, { symbol: "N", percentage: 23.69, atomicMass: 14.01 }]
+            },
+            {
+                statement: "Deducir la fórmula empírica de un compuesto con la siguiente composición en porcentaje, K = 12,67; I = 41,23; Cl = 47,07.",
+                elements: [{ symbol: "K", percentage: 12.67, atomicMass: 39.10 }, { symbol: "I", percentage: 41.23, atomicMass: 126.90 }, { symbol: "Cl", percentage: 47.07, atomicMass: 35.45 }]
+            }
+        ];
+
+        let currentProblem = {};
+
+        function generateProblem() {
+            currentProblem = problems[Math.floor(Math.random() * problems.length)];
+            document.getElementById("problem").innerHTML = `<p>${currentProblem.statement}</p>`;
+            let solutionHtml = '<h3>Solución</h3>';
+            solutionHtml += '<h4>Paso 1: Dividir cada porcentaje por la masa atómica</h4>';
+            currentProblem.elements.forEach((element, index) => {
+                solutionHtml += `<p>${element.symbol}: 
+                                 <input type="text" id="percentage${index}" placeholder="Porcentaje"> /
+                                 <input type="text" id="atomicMass${index}" placeholder="Masa Atómica"> =
+                                 <input type="text" id="division${index}" placeholder="Resultado"></p>`;
+            });
+            solutionHtml += '<h4>Paso 2: Dividir los resultados anteriores por el menor valor</h4>';
+            currentProblem.elements.forEach((element, index) => {
+                solutionHtml += `<p>${element.symbol}: 
+                                 <input type="text" id="divisionResult${index}" placeholder="Resultado de Paso 1"> /
+                                 <input type="text" id="smallestValue" placeholder="Menor Valor"> =
+                                 <input type="text" id="finalDivision${index}" placeholder="Resultado"></p>`;
+            });
+            solutionHtml += '<h4>Paso 3: Determinar la fórmula empírica</h4>';
+            currentProblem.elements.forEach((element, index) => {
+                solutionHtml += `<p>${element.symbol}<sub><input type="text" id="formula${index}" placeholder=""></sub></p>`;
+            });
+            document.getElementById("solution").innerHTML = solutionHtml;
+        }
+
+        function checkAnswers() {
+            let correctCount = 0;
+            currentProblem.elements.forEach((element, index) => {
+                const percentage = parseFloat(document.getElementById(`percentage${index}`).value);
+                const atomicMass = parseFloat(document.getElementById(`atomicMass${index}`).value);
+                const division = parseFloat(document.getElementById(`division${index}`).value);
+                const divisionResult = parseFloat(document.getElementById(`divisionResult${index}`).value);
+                const smallestValue = parseFloat(document.getElementById("smallestValue").value);
+                const finalDivision = parseFloat(document.getElementById(`finalDivision${index}`).value);
+                const formula = parseFloat(document.getElementById(`formula${index}`).value);
+
+                const calculatedDivision = (percentage / atomicMass).toFixed(2);
+                const calculatedFinalDivision = (calculatedDivision / smallestValue).toFixed(2);
+                const elementCount = Math.round(calculatedFinalDivision);
+
+                if (calculatedDivision == division.toFixed(2)) {
+                    correctCount++;
+                    document.getElementById(`division${index}`).classList.add("correct");
+                    document.getElementById(`division${index}`).classList.remove("incorrect");
+                } else {
+                    document.getElementById(`division${index}`).classList.add("incorrect");
+                    document.getElementById(`division${index}`).classList.remove("correct");
+                }
+
+                if (calculatedFinalDivision == finalDivision.toFixed(2)) {
+                    correctCount++;
+                    document.getElementById(`finalDivision${index}`).classList.add("correct");
+                    document.getElementById(`finalDivision${index}`).classList.remove("incorrect");
+                } else {
+                    document.getElementById(`finalDivision${index}`).classList.add("incorrect");
+                    document.getElementById(`finalDivision${index}`).classList.remove("correct");
+                }
+
+                if (elementCount == formula) {
+                    correctCount++;
+                    document.getElementById(`formula${index}`).classList.add("correct");
+                    document.getElementById(`formula${index}`).classList.remove("incorrect");
+                } else {
+                    document.getElementById(`formula${index}`).classList.add("incorrect");
+                    document.getElementById(`formula${index}`).classList.remove("correct");
+                }
+            });
+
+            const totalAnswers = currentProblem.elements.length * 3;
+            const score = ((correctCount / totalAnswers) * 100).toFixed(2);
+            document.getElementById("score").innerHTML = `Respuestas correctas: ${correctCount} de ${totalAnswers} (${score}%)`;
+        }
+
+        function resetAnswers() {
+            currentProblem.elements.forEach((element, index) => {
+                document.getElementById(`division${index}`).value = "";
+                document.getElementById(`division${index}`).classList.remove("correct", "incorrect");
+                document.getElementById(`finalDivision${index}`).value = "";
+                document.getElementById(`finalDivision${index}`).classList.remove("correct", "incorrect");
+                document.getElementById(`formula${index}`).value = "";
+                document.getElementById(`formula${index}`).classList.remove("correct", "incorrect");
+            });
+            document.getElementById("smallestValue").value = "";
+            document.getElementById("score").innerHTML = "";
+        }
+
+        window.onload = generateProblem;
+    </script>
+</body>
+</html>
