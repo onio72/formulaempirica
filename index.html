@@ -3,137 +3,172 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Problemas de Fórmulas Empíricas</title>
+    <title>Problema de Fórmula Empírica</title>
     <style>
-        .correct { color: green; }
-        .incorrect { color: red; }
-        .hidden { display: none; }
-        .result { margin-top: 10px; }
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+        #enunciado {
+            background-color: #f0f0f0;
+            border: 2px solid black;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        #solucion, #respuestas {
+            display: none;
+        }
+        button {
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        input {
+            width: 60px;
+        }
+        .correcto {
+            color: green;
+        }
+        .incorrecto {
+            color: red;
+        }
     </style>
 </head>
 <body>
-    <h1>Problemas de Fórmulas Empíricas</h1>
-    <p>Resuelve el problema siguiente. Usa dos cifras decimales y redondea hasta las centésimas.</p>
-    <div id="problem"></div>
-    <div id="solution"></div>
-    <button onclick="checkAnswers()">Comprobar</button>
-    <button onclick="resetAnswers()">Corregir</button>
-    <button onclick="generateProblem()">Otro caso</button>
-    <div id="score" class="result"></div>
-    
+    <h1>Problema de Fórmula Empírica</h1>
+    <div id="enunciado"></div>
+    <div id="respuestas"></div>
+    <button onclick="corregir()">Corregir</button>
+    <button onclick="mostrarSolucion()">Mostrar Solución</button>
+    <button onclick="otroEjemplo()">Otro Ejemplo</button>
+    <div id="porcentaje"></div>
+    <div id="solucion"></div>
+
     <script>
-        const problems = [
-            {
-                statement: "Deducir la fórmula empírica de una sustancia con la siguiente composición centesimal: 44,50% Ca, 19,97% Al y 35,53% O.",
-                elements: [{ symbol: "Ca", percentage: 44.50, atomicMass: 40.08 }, { symbol: "Al", percentage: 19.97, atomicMass: 26.98 }, { symbol: "O", percentage: 35.53, atomicMass: 16.00 }]
-            },
-            {
-                statement: "Deducir la fórmula empírica de una sustancia con la siguiente composición centesimal: 22,00% Ca, 15,42% Si y 62,58% F.",
-                elements: [{ symbol: "Ca", percentage: 22.00, atomicMass: 40.08 }, { symbol: "Si", percentage: 15.42, atomicMass: 28.09 }, { symbol: "F", percentage: 62.58, atomicMass: 19.00 }]
-            },
-            {
-                statement: "Deducir la fórmula empírica de una sustancia con la siguiente composición centesimal: 54,53% C, 9,15% H y 36,32% O.",
-                elements: [{ symbol: "C", percentage: 54.53, atomicMass: 12.01 }, { symbol: "H", percentage: 9.15, atomicMass: 1.008 }, { symbol: "O", percentage: 36.32, atomicMass: 16.00 }]
-            },
-            {
-                statement: "Deducir la fórmula empírica de un compuesto orgánico con la siguiente composición centesimal: 60,96% de C, 15,35% de H y 23,69% de N.",
-                elements: [{ symbol: "C", percentage: 60.96, atomicMass: 12.01 }, { symbol: "H", percentage: 15.35, atomicMass: 1.008 }, { symbol: "N", percentage: 23.69, atomicMass: 14.01 }]
-            },
-            {
-                statement: "Deducir la fórmula empírica de un compuesto con la siguiente composición en porcentaje, K = 12,67; I = 41,23; Cl = 47,07.",
-                elements: [{ symbol: "K", percentage: 12.67, atomicMass: 39.10 }, { symbol: "I", percentage: 41.23, atomicMass: 126.90 }, { symbol: "Cl", percentage: 47.07, atomicMass: 35.45 }]
-            }
+        const compuestos = [
+            {nombre: "Sulfato de aluminio", elementos: [{simbolo: "Al", porcentaje: 15.79, peso: 26.98}, {simbolo: "S", porcentaje: 13.72, peso: 32.07}, {simbolo: "O", porcentaje: 70.49, peso: 16.00}]},
+            {nombre: "Nitrato de calcio", elementos: [{simbolo: "Ca", porcentaje: 24.41, peso: 40.08}, {simbolo: "N", porcentaje: 17.06, peso: 14.01}, {simbolo: "O", porcentaje: 58.53, peso: 16.00}]},
+            {nombre: "Carbonato de sodio", elementos: [{simbolo: "Na", porcentaje: 43.39, peso: 22.99}, {simbolo: "C", porcentaje: 11.32, peso: 12.01}, {simbolo: "O", porcentaje: 45.29, peso: 16.00}]},
+            {nombre: "Fosfato de potasio", elementos: [{simbolo: "K", porcentaje: 57.06, peso: 39.10}, {simbolo: "P", porcentaje: 15.10, peso: 30.97}, {simbolo: "O", porcentaje: 27.84, peso: 16.00}]},
+            {nombre: "Sulfato de cobre(II)", elementos: [{simbolo: "Cu", porcentaje: 39.81, peso: 63.55}, {simbolo: "S", porcentaje: 20.13, peso: 32.07}, {simbolo: "O", porcentaje: 40.06, peso: 16.00}]},
+            {nombre: "Nitrato de magnesio", elementos: [{simbolo: "Mg", porcentaje: 16.38, peso: 24.31}, {simbolo: "N", porcentaje: 19.13, peso: 14.01}, {simbolo: "O", porcentaje: 64.49, peso: 16.00}]},
+            {nombre: "Carbonato de litio", elementos: [{simbolo: "Li", porcentaje: 18.78, peso: 6.94}, {simbolo: "C", porcentaje: 16.38, peso: 12.01}, {simbolo: "O", porcentaje: 64.84, peso: 16.00}]},
+            {nombre: "Fosfato de amonio", elementos: [{simbolo: "N", porcentaje: 28.18, peso: 14.01}, {simbolo: "H", porcentaje: 9.48, peso: 1.01}, {simbolo: "P", porcentaje: 20.73, peso: 30.97}, {simbolo: "O", porcentaje: 41.61, peso: 16.00}]},
+            {nombre: "Sulfito de sodio", elementos: [{simbolo: "Na", porcentaje: 48.05, peso: 22.99}, {simbolo: "S", porcentaje: 25.39, peso: 32.07}, {simbolo: "O", porcentaje: 26.56, peso: 16.00}]},
+            {nombre: "Clorato de potasio", elementos: [{simbolo: "K", porcentaje: 31.86, peso: 39.10}, {simbolo: "Cl", porcentaje: 28.94, peso: 35.45}, {simbolo: "O", porcentaje: 39.20, peso: 16.00}]},
+            {nombre: "Hidróxido de aluminio", elementos: [{simbolo: "Al", porcentaje: 34.59, peso: 26.98}, {simbolo: "O", porcentaje: 55.29, peso: 16.00}, {simbolo: "H", porcentaje: 10.12, peso: 1.01}]},
+            {nombre: "Bicarbonato de sodio", elementos: [{simbolo: "Na", porcentaje: 27.37, peso: 22.99}, {simbolo: "H", porcentaje: 1.20, peso: 1.01}, {simbolo: "C", porcentaje: 14.30, peso: 12.01}, {simbolo: "O", porcentaje: 57.13, peso: 16.00}]},
+            {nombre: "Sulfato de amonio", elementos: [{simbolo: "N", porcentaje: 21.20, peso: 14.01}, {simbolo: "H", porcentaje: 6.06, peso: 1.01}, {simbolo: "S", porcentaje: 24.24, peso: 32.07}, {simbolo: "O", porcentaje: 48.50, peso: 16.00}]},
+            {nombre: "Nitrato de plata", elementos: [{simbolo: "Ag", porcentaje: 63.51, peso: 107.87}, {simbolo: "N", porcentaje: 8.28, peso: 14.01}, {simbolo: "O", porcentaje: 28.21, peso: 16.00}]},
+            {nombre: "Cloruro de magnesio hexahidratado", elementos: [{simbolo: "Mg", porcentaje: 11.96, peso: 24.31}, {simbolo: "Cl", porcentaje: 34.87, peso: 35.45}, {simbolo: "H", porcentaje: 5.97, peso: 1.01}, {simbolo: "O", porcentaje: 47.20, peso: 16.00}]}
         ];
 
-        let currentProblem = {};
+        let compuestoActual;
 
-        function generateProblem() {
-            currentProblem = problems[Math.floor(Math.random() * problems.length)];
-            document.getElementById("problem").innerHTML = `<p>${currentProblem.statement}</p>`;
-            let solutionHtml = '<h3>Solución</h3>';
-            solutionHtml += '<h4>Paso 1: Dividir cada porcentaje por la masa atómica</h4>';
-            currentProblem.elements.forEach((element, index) => {
-                solutionHtml += `<p>${element.symbol}: 
-                                 <input type="text" id="percentage${index}" placeholder="Porcentaje"> /
-                                 <input type="text" id="atomicMass${index}" placeholder="Masa Atómica"> =
-                                 <input type="text" id="division${index}" placeholder="Resultado"></p>`;
-            });
-            solutionHtml += '<h4>Paso 2: Dividir los resultados anteriores por el menor valor</h4>';
-            currentProblem.elements.forEach((element, index) => {
-                solutionHtml += `<p>${element.symbol}: 
-                                 <input type="text" id="divisionResult${index}" placeholder="Resultado de Paso 1"> /
-                                 <input type="text" id="smallestValue" placeholder="Menor Valor"> =
-                                 <input type="text" id="finalDivision${index}" placeholder="Resultado"></p>`;
-            });
-            solutionHtml += '<h4>Paso 3: Determinar la fórmula empírica</h4>';
-            currentProblem.elements.forEach((element, index) => {
-                solutionHtml += `<p>${element.symbol}<sub><input type="text" id="formula${index}" placeholder=""></sub></p>`;
-            });
-            document.getElementById("solution").innerHTML = solutionHtml;
+        function generarProblema() {
+            compuestoActual = compuestos[Math.floor(Math.random() * compuestos.length)];
+            let enunciado = `<h2>Enunciado del problema:</h2>
+            <p>Un compuesto químico está formado por ${compuestoActual.elementos.map(e => e.simbolo).join(', ')}. El análisis elemental muestra que su composición en porcentaje en masa es:</p>
+            <ul>
+            ${compuestoActual.elementos.map(e => `<li>${e.simbolo}: ${e.porcentaje}%</li>`).join('')}
+            </ul>
+            <p>Utilizando los siguientes pesos atómicos:</p>
+            <ul>
+            ${compuestoActual.elementos.map(e => `<li>${e.simbolo}: ${e.peso} g/mol</li>`).join('')}
+            </ul>
+            <p>Determina la fórmula empírica del compuesto.</p>`;
+
+            document.getElementById('enunciado').innerHTML = enunciado;
+            generarCajasRespuesta();
         }
 
-        function checkAnswers() {
-            let correctCount = 0;
-            currentProblem.elements.forEach((element, index) => {
-                const percentage = parseFloat(document.getElementById(`percentage${index}`).value);
-                const atomicMass = parseFloat(document.getElementById(`atomicMass${index}`).value);
-                const division = parseFloat(document.getElementById(`division${index}`).value);
-                const divisionResult = parseFloat(document.getElementById(`divisionResult${index}`).value);
-                const smallestValue = parseFloat(document.getElementById("smallestValue").value);
-                const finalDivision = parseFloat(document.getElementById(`finalDivision${index}`).value);
-                const formula = parseFloat(document.getElementById(`formula${index}`).value);
+        function generarCajasRespuesta() {
+            let respuestas = `<h3>1. Cálculo del número de moles de cada elemento presentes en 100 g de compuesto:</h3>
+            <ul>
+            ${compuestoActual.elementos.map(e => `<li>${e.simbolo}: <input type="text" id="moles_${e.simbolo}"> mol <span id="check_moles_${e.simbolo}"></span></li>`).join('')}
+            </ul>
+            <h3>2. Cálculo de la proporción en que se encuentran dichas cantidades:</h3>
+            <ul>
+            ${compuestoActual.elementos.map(e => `<li>${e.simbolo}: <input type="text" id="prop_${e.simbolo}"> <span id="check_prop_${e.simbolo}"></span></li>`).join('')}
+            </ul>
+            <h3>3. Fórmula empírica del compuesto:</h3>
+            <p><input type="text" id="formula"> <span id="check_formula"></span></p>`;
 
-                const calculatedDivision = (percentage / atomicMass).toFixed(2);
-                const calculatedFinalDivision = (calculatedDivision / smallestValue).toFixed(2);
-                const elementCount = Math.round(calculatedFinalDivision);
-
-                if (calculatedDivision == division.toFixed(2)) {
-                    correctCount++;
-                    document.getElementById(`division${index}`).classList.add("correct");
-                    document.getElementById(`division${index}`).classList.remove("incorrect");
-                } else {
-                    document.getElementById(`division${index}`).classList.add("incorrect");
-                    document.getElementById(`division${index}`).classList.remove("correct");
-                }
-
-                if (calculatedFinalDivision == finalDivision.toFixed(2)) {
-                    correctCount++;
-                    document.getElementById(`finalDivision${index}`).classList.add("correct");
-                    document.getElementById(`finalDivision${index}`).classList.remove("incorrect");
-                } else {
-                    document.getElementById(`finalDivision${index}`).classList.add("incorrect");
-                    document.getElementById(`finalDivision${index}`).classList.remove("correct");
-                }
-
-                if (elementCount == formula) {
-                    correctCount++;
-                    document.getElementById(`formula${index}`).classList.add("correct");
-                    document.getElementById(`formula${index}`).classList.remove("incorrect");
-                } else {
-                    document.getElementById(`formula${index}`).classList.add("incorrect");
-                    document.getElementById(`formula${index}`).classList.remove("correct");
-                }
-            });
-
-            const totalAnswers = currentProblem.elements.length * 3;
-            const score = ((correctCount / totalAnswers) * 100).toFixed(2);
-            document.getElementById("score").innerHTML = `Respuestas correctas: ${correctCount} de ${totalAnswers} (${score}%)`;
+            document.getElementById('respuestas').innerHTML = respuestas;
+            document.getElementById('respuestas').style.display = 'block';
+            document.getElementById('solucion').style.display = 'none';
+            document.getElementById('porcentaje').innerHTML = '';
         }
 
-        function resetAnswers() {
-            currentProblem.elements.forEach((element, index) => {
-                document.getElementById(`division${index}`).value = "";
-                document.getElementById(`division${index}`).classList.remove("correct", "incorrect");
-                document.getElementById(`finalDivision${index}`).value = "";
-                document.getElementById(`finalDivision${index}`).classList.remove("correct", "incorrect");
-                document.getElementById(`formula${index}`).value = "";
-                document.getElementById(`formula${index}`).classList.remove("correct", "incorrect");
+        function corregir() {
+            let correctas = 0;
+            let total = 0;
+
+            compuestoActual.elementos.forEach(e => {
+                let moles = (e.porcentaje / e.peso).toFixed(2);
+                let respuestaMoles = document.getElementById(`moles_${e.simbolo}`).value;
+                document.getElementById(`check_moles_${e.simbolo}`).innerHTML = respuestaMoles == moles ? '✅' : '❌';
+                correctas += respuestaMoles == moles ? 1 : 0;
+                total++;
             });
-            document.getElementById("smallestValue").value = "";
-            document.getElementById("score").innerHTML = "";
+
+            const molesCalculados = compuestoActual.elementos.map(e => e.porcentaje / e.peso);
+            const minMol = Math.min(...molesCalculados);
+            compuestoActual.elementos.forEach(e => {
+                let proporcion = (e.porcentaje / e.peso / minMol).toFixed(2);
+                let respuestaProporcion = document.getElementById(`prop_${e.simbolo}`).value;
+                document.getElementById(`check_prop_${e.simbolo}`).innerHTML = respuestaProporcion == proporcion ? '✅' : '❌';
+                correctas += respuestaProporcion == proporcion ? 1 : 0;
+                total++;
+            });
+
+            let formulaCorrecta = escribirFormula(compuestoActual.elementos);
+            let respuestaFormula = document.getElementById('formula').value;
+            document.getElementById('check_formula').innerHTML = respuestaFormula == formulaCorrecta ? '✅' : '❌';
+            correctas += respuestaFormula == formulaCorrecta ? 1 : 0;
+            total++;
+
+            let porcentaje = (correctas / total * 100).toFixed(2);
+            document.getElementById('porcentaje').innerHTML = `Porcentaje de corrección: ${porcentaje}%`;
         }
 
-        window.onload = generateProblem;
+        function mostrarSolucion() {
+            const molesCalculados = compuestoActual.elementos.map(e => e.porcentaje / e.peso);
+            const minMol = Math.min(...molesCalculados);
+            const proporciones = molesCalculados.map(m => (m / minMol).toFixed(2));
+
+            let solucion = `<h2>Solución:</h2>
+            <h3>1. Cálculo del número de moles de cada elemento presentes en 100 g de compuesto:</h3>
+            <ul>
+            ${compuestoActual.elementos.map((e, i) => `<li>${e.simbolo}: ${e.porcentaje} g / ${e.peso} g/mol = ${molesCalculados[i].toFixed(2)} mol</li>`).join('')}
+            </ul>
+            <h3>2. Cálculo de la proporción en que se encuentran dichas cantidades:</h3>
+            <ul>
+            ${compuestoActual.elementos.map((e, i) => `<li>${e.simbolo}: ${molesCalculados[i].toFixed(2)} / ${minMol.toFixed(2)} = ${proporciones[i]}</li>`).join('')}
+            </ul>
+            <h3>3. Fórmula empírica del compuesto:</h3>
+            <p>${escribirFormula(compuestoActual.elementos)}</p>
+            <p>Por lo tanto, la fórmula empírica del ${compuestoActual.nombre} es ${escribirFormula(compuestoActual.elementos)}.</p>`;
+
+            document.getElementById('solucion').innerHTML = solucion;
+            document.getElementById('solucion').style.display = 'block';
+        }
+
+        function escribirFormula(elementos) {
+            const moles = elementos.map(e => e.porcentaje / e.peso);
+            const minMol = Math.min(...moles);
+            const proporciones = moles.map(m => Math.round(m / minMol));
+            return elementos.map((e, i) => e.simbolo + (proporciones[i] > 1 ? proporciones[i] : "")).join("");
+        }
+
+        function otroEjemplo() {
+            generarProblema();
+        }
+
+        generarProblema();
     </script>
 </body>
 </html>
