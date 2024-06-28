@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Problema de Fórmula Empírica</title>
+    <title>Física y Química 1º de bachillerato</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -16,6 +16,9 @@
             border: 2px solid black;
             padding: 20px;
             margin-bottom: 20px;
+            width: 90%;
+            margin-left: auto;
+            margin-right: auto;
         }
         #solucion, #respuestas {
             display: none;
@@ -35,10 +38,26 @@
         .incorrecto {
             color: red;
         }
+        .fraccion {
+            display: inline-block;
+            text-align: center;
+            vertical-align: middle;
+        }
+        .fraccion > span {
+            display: block;
+            padding-top: 0.15em;
+        }
+        .fraccion span.frac-line {
+            border-top: 1px solid #000;
+        }
+        .subindice {
+            vertical-align: sub;
+            font-size: smaller;
+        }
     </style>
 </head>
 <body>
-    <h1>Problema de Fórmula Empírica</h1>
+    <h1>Física y Química 1º de bachillerato. Tema 05. Ejercicio de fórmula empírica</h1>
     <div id="enunciado"></div>
     <div id="respuestas"></div>
     <button onclick="corregir()">Corregir</button>
@@ -71,15 +90,9 @@
         function generarProblema() {
             compuestoActual = compuestos[Math.floor(Math.random() * compuestos.length)];
             let enunciado = `<h2>Enunciado del problema:</h2>
-            <p>Un compuesto químico está formado por ${compuestoActual.elementos.map(e => e.simbolo).join(', ')}. El análisis elemental muestra que su composición en porcentaje en masa es:</p>
-            <ul>
-            ${compuestoActual.elementos.map(e => `<li>${e.simbolo}: ${e.porcentaje}%</li>`).join('')}
-            </ul>
-            <p>Utilizando los siguientes pesos atómicos:</p>
-            <ul>
-            ${compuestoActual.elementos.map(e => `<li>${e.simbolo}: ${e.peso} g/mol</li>`).join('')}
-            </ul>
-            <p>Determina la fórmula empírica del compuesto.</p>`;
+            <p>Un compuesto químico está formado por ${compuestoActual.elementos.map(e => e.simbolo).join(', ')}. El análisis elemental muestra que su composición en porcentaje en masa es: ${compuestoActual.elementos.map(e => `${e.simbolo}: ${e.porcentaje}%`).join(', ')}.</p>
+            <p>Determina la fórmula empírica del compuesto.</p>
+            <p>Datos: ${compuestoActual.elementos.map(e => `${e.simbolo}: ${e.peso} g/mol`).join(', ')}</p>`;
 
             document.getElementById('enunciado').innerHTML = enunciado;
             generarCajasRespuesta();
@@ -87,15 +100,27 @@
 
         function generarCajasRespuesta() {
             let respuestas = `<h3>1. Cálculo del número de moles de cada elemento presentes en 100 g de compuesto:</h3>
-            <ul>
-            ${compuestoActual.elementos.map(e => `<li>${e.simbolo}: <input type="text" id="moles_${e.simbolo}"> mol <span id="check_moles_${e.simbolo}"></span></li>`).join('')}
-            </ul>
+            ${compuestoActual.elementos.map(e => `
+                <p>Moles ${e.simbolo}: 
+                <span class="fraccion">
+                    <span><input type="text" id="num_moles_${e.simbolo}"></span>
+                    <span class="frac-line"></span>
+                    <span><input type="text" id="den_moles_${e.simbolo}"></span>
+                </span>
+                = <input type="text" id="moles_${e.simbolo}"> mol <span id="check_moles_${e.simbolo}"></span></p>
+            `).join('')}
             <h3>2. Cálculo de la proporción en que se encuentran dichas cantidades:</h3>
-            <ul>
-            ${compuestoActual.elementos.map(e => `<li>${e.simbolo}: <input type="text" id="prop_${e.simbolo}"> <span id="check_prop_${e.simbolo}"></span></li>`).join('')}
-            </ul>
+            ${compuestoActual.elementos.map(e => `
+                <p>${e.simbolo}: 
+                <span class="fraccion">
+                    <span><input type="text" id="num_prop_${e.simbolo}"></span>
+                    <span class="frac-line"></span>
+                    <span><input type="text" id="den_prop_${e.simbolo}"></span>
+                </span>
+                = <input type="text" id="prop_${e.simbolo}"> <span id="check_prop_${e.simbolo}"></span></p>
+            `).join('')}
             <h3>3. Fórmula empírica del compuesto:</h3>
-            <p><input type="text" id="formula"> <span id="check_formula"></span></p>`;
+            <p>${compuestoActual.elementos.map(e => `${e.simbolo}<input type="text" class="subindice" id="formula_${e.simbolo}">`).join('')} <span id="check_formula"></span></p>`;
 
             document.getElementById('respuestas').innerHTML = respuestas;
             document.getElementById('respuestas').style.display = 'block';
@@ -126,7 +151,7 @@
             });
 
             let formulaCorrecta = escribirFormula(compuestoActual.elementos);
-            let respuestaFormula = document.getElementById('formula').value;
+            let respuestaFormula = compuestoActual.elementos.map(e => `${e.simbolo}${document.getElementById(`formula_${e.simbolo}`).value}`).join('');
             document.getElementById('check_formula').innerHTML = respuestaFormula == formulaCorrecta ? '✅' : '❌';
             correctas += respuestaFormula == formulaCorrecta ? 1 : 0;
             total++;
@@ -142,13 +167,9 @@
 
             let solucion = `<h2>Solución:</h2>
             <h3>1. Cálculo del número de moles de cada elemento presentes en 100 g de compuesto:</h3>
-            <ul>
-            ${compuestoActual.elementos.map((e, i) => `<li>${e.simbolo}: ${e.porcentaje} g / ${e.peso} g/mol = ${molesCalculados[i].toFixed(2)} mol</li>`).join('')}
-            </ul>
+            ${compuestoActual.elementos.map((e, i) => `<p>Moles ${e.simbolo}: ${e.porcentaje} g / ${e.peso} g/mol = ${molesCalculados[i].toFixed(2)} mol</p>`).join('')}
             <h3>2. Cálculo de la proporción en que se encuentran dichas cantidades:</h3>
-            <ul>
-            ${compuestoActual.elementos.map((e, i) => `<li>${e.simbolo}: ${molesCalculados[i].toFixed(2)} / ${minMol.toFixed(2)} = ${proporciones[i]}</li>`).join('')}
-            </ul>
+            ${compuestoActual.elementos.map((e, i) => `<p>${e.simbolo}: ${molesCalculados[i].toFixed(2)} / ${minMol.toFixed(2)} = ${proporciones[i]}</p>`).join('')}
             <h3>3. Fórmula empírica del compuesto:</h3>
             <p>${escribirFormula(compuestoActual.elementos)}</p>
             <p>Por lo tanto, la fórmula empírica del ${compuestoActual.nombre} es ${escribirFormula(compuestoActual.elementos)}.</p>`;
